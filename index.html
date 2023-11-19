@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Behance Clone</title>
+    <style>
+        .project-row {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .project-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            margin: 10px;
+            background-color: #fff;
+            padding: 20px;
+            width: 30%;
+        }
+
+        .project-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        nav {
+            background-color: #444;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px;
+            margin: 0 10px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        #search-bar {
+            margin-bottom: 20px;
+        }
+
+        #search-input {
+            padding: 10px;
+            width: 70%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        #category-dropdown {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        #search-results {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: absolute;
+            width: 70%;
+            z-index: 1;
+            display: none;
+        }
+
+        #search-results div {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+    </style>>
+</head>
+<body>
+    <header>
+        <h1>Behance Clone</h1>
+    </header>
+
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">Discover</a>
+        <a href="#">Collections</a>
+        <a href="#">Projects</a>
+        <a href="#">About</a>
+        <a href="#">Login</a>
+        <a href="#">Sign-up</a>
+    </nav>
+
+    <div class="container">
+        <div id="search-bar">
+            <input type="text" id="search-input" placeholder="Search projects...">
+            <div id="search-results"></div>
+            <select class="category-dropdown" id="category-dropdown">
+                <option value="all">All Categories</option>
+                <option value="design">Design</option>
+                <option value="photography">Photography</option>
+                <option value="illustration">Illustration</option>
+                <option value="digital art">Digital Art</option>
+                <option value="presentation">Presentation</option>
+            </select>
+        </div>
+
+        <div id="projects-container">
+            <!-- Project cards will be dynamically added here -->
+        </div>
+    </div>
+
+    <script>
+        const additionalProjects = [
+            { title: "Freepik", category: "design", imageUrl: "https://img.freepik.com/free-vector/design-process-concept-landing-page_23-2148313670.jpg" },
+            { title: "Pixabay", category: "photography", imageUrl: "https://cdn.pixabay.com/photo/2014/02/02/17/40/photographs-256888_640.jpg" },
+            { title: "Iconsplash", category: "illustration", imageUrl: "https://static.vecteezy.com/system/resources/thumbnails/000/217/368/small/vector-colourful-red-landscape-illustration.jpg" },
+            { title: "Buffer", category: "design", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU54eyJ_fzl9Gy4ZKzZ9fnObJjMsp6yCfgSA&usqp=CAU" },
+            { title: "Unsplash", category: "photography", imageUrl: "https://expertphotography.b-cdn.net/wp-content/uploads/2020/07/social-media-for-photographers-follow-1.jpg" },
+            { title: "Boom", category: "illustration", imageUrl: "https://www.creativeboom.com/uploads/articles/b6/b69c283db081ed7337ddeffd53228fb737c930b5_810.jpg" },
+            { title: "Guide", category: "presentation", imageUrl: "https://venngage-wordpress.s3.amazonaws.com/uploads/2018/08/presentation-design.png" },
+            { title: "Hub Spot", category: "presentation", imageUrl: "https://www.hubspot.com/hubfs/Powerpoint%20presentation.jpg" },
+            { title: "Business", category: "presentation", imageUrl: "https://i.insider.com/5395c6986bb3f7502095212f?width=1000&format=jpeg&auto=webp" },
+            { title: "IndiaMart", category: "digital art", imageUrl: "https://i.etsystatic.com/27748029/r/il/e1e2f0/4647108632/il_570xN.4647108632_nbe6.jpg" },
+            { title: "Oil Paint", category: "digital art", imageUrl: "https://cdn11.bigcommerce.com/s-x49po/images/stencil/1500x1500/products/89150/250282/1668324869830_717FF2C6-8682-4BE0-883D-D74CE9207A92__30870.1687001573.jpg?c=2" },
+        ];
+
+        const projects = [
+            { title: "Kambaa", category: "design", imageUrl: "https://www.kambaaincorporation.com/images/logo-design.jpg" },
+            { title: "Editoralite", category: "photography", imageUrl: "https://www.adorama.com/alc/wp-content/uploads/2021/04/photography-camera-learning-feature.jpg" },
+            { title: "Wiki", category: "illustration", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Wilcox.jpg/220px-Wilcox.jpg" },
+            ...additionalProjects,
+        ];
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        const categoryDropdown = document.getElementById('category-dropdown');
+        const projectsContainer = document.getElementById('projects-container');
+
+        searchInput.addEventListener('input', updateSearchResults);
+
+        categoryDropdown.addEventListener('change', updateProjects);
+
+        updateProjects();
+
+        function updateSearchResults() {
+            const query = searchInput.value.toLowerCase();
+            const filteredProjects = projects.filter(project => project.title.toLowerCase().includes(query));
+
+            searchResults.innerHTML = '';
+            filteredProjects.forEach(project => {
+                const resultItem = document.createElement('div');
+                resultItem.textContent = project.title;
+                resultItem.addEventListener('click', () => {
+                    searchInput.value = project.title;
+                    searchResults.style.display = 'none';
+                    updateProjects();
+                });
+                searchResults.appendChild(resultItem);
+            });
+
+            searchResults.style.display = filteredProjects.length > 0 ? 'block' : 'none';
+        }
+
+        function updateProjects() {
+            const category = categoryDropdown.value;
+            const filteredProjects = category === 'all' ? projects : projects.filter(project => project.category === category);
+
+            projectsContainer.innerHTML = '';
+
+            const groupedProjects = {};
+            filteredProjects.forEach(project => {
+                if (!groupedProjects[project.category]) {
+                    groupedProjects[project.category] = [];
+                }
+                groupedProjects[project.category].push(project);
+            });
+
+            for (const categoryKey in groupedProjects) {
+                const categoryRow = document.createElement('div');
+                categoryRow.className = 'project-row';
+
+                groupedProjects[categoryKey].forEach(project => {
+                    const projectCard = document.createElement('div');
+                    projectCard.className = 'project-card';
+
+                    const projectImage = document.createElement('img');
+                    projectImage.src = project.imageUrl;
+                    projectCard.appendChild(projectImage);
+
+                    const projectTitle = document.createElement('div');
+                    projectTitle.textContent = project.title;
+                    projectCard.appendChild(projectTitle);
+
+                    categoryRow.appendChild(projectCard);
+                });
+
+                projectsContainer.appendChild(categoryRow);
+            }
+        }    </script>
+</body>
+</html>
